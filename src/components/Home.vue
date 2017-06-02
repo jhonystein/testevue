@@ -49,7 +49,7 @@
         </div>
       </div>
     </div>
-    <card-modal :title="'Teste de Titulo de Modal ' + form.origin" :visible="visible" okText="Enviar" cancelText="Desistir" @cancel="onClose()" @close="onClose()">
+    <card-modal :title="'Teste de Titulo de Modal ' + form.origin" :visible="visible" okText="Enviar" cancelText="Desistir" @ok="send()" @cancel="onClose()" @close="onClose()">
       <div class="block">
         <div class="control">
           <label class="label">Nome *</label>
@@ -98,6 +98,12 @@ import Cleave from 'vue-cleave'
 import 'cleave.js/dist/addons/cleave-phone.br'
 import { required, minLength } from 'vuelidate/lib/validators'
 
+import Firebase from 'firebase'
+import config from '../firebase-config'
+
+const firebaseApp = Firebase.initializeApp(config, 'prazos')
+const db = firebaseApp.database()
+
 export default {
   components: {
     CardModal,
@@ -130,6 +136,9 @@ export default {
       }
     }
   },
+  firebase: {
+    inscritos: db.ref('inscritos')
+  },
   methods: {
     onClose () {
       this.visible = false
@@ -137,6 +146,16 @@ export default {
     open (origin) {
       this.form.origin = origin
       this.visible = true
+    },
+    send () {
+      this.$firebaseRefs.inscritos.push(this.form)
+      this.form = {
+        nome: '',
+        email: '',
+        telefone: '',
+        empresa: ''
+      }
+      this.visible = false
     }
   },
   computed: {
